@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f2f1e9">
+    <meta name="description" content="A simple place to meet someone new through anonymous, text-only conversation.">
+    <title>sideby — talk to someone new</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/client.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="wordmark" href="/" aria-label="sideby home"><span class="brand-mark" aria-hidden="true">s.</span>sideby</a>
+        <div class="topbar-right">
+          <span class="online-indicator"><span class="live-dot"></span><span id="online-count">Connecting</span></span>
+          <button class="icon-button help-button" id="safety-button" type="button" title="Safety information" aria-label="Safety information">
+            <i data-lucide="shield-check" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <main class="workspace">
+        <aside class="sidebar" aria-label="Chat settings">
+          <div class="sidebar-heading">
+            <span class="eyebrow">A LITTLE LESS STRANGE</span>
+            <h1>Good talks<br>start anywhere.</h1>
+            <p>Meet someone new. Keep it kind. See where the conversation goes.</p>
+          </div>
+
+          <div class="setup-section">
+            <label class="section-label" for="interest-input">Find common ground <span>optional</span></label>
+            <div class="interest-entry">
+              <input id="interest-input" type="text" maxlength="24" placeholder="Add a topic" autocomplete="off">
+              <button id="add-interest" class="add-button" type="button" aria-label="Add topic" title="Add topic"><i data-lucide="plus" aria-hidden="true"></i></button>
+            </div>
+            <div id="interest-list" class="interest-list" aria-live="polite"></div>
+            <div class="topic-suggestions" aria-label="Suggested topics">
+              <button class="suggestion" type="button" data-topic="Music">Music</button>
+              <button class="suggestion" type="button" data-topic="Movies">Movies</button>
+              <button class="suggestion" type="button" data-topic="Travel">Travel</button>
+              <button class="suggestion" type="button" data-topic="Books">Books</button>
+            </div>
+          </div>
+
+          <div class="safety-note">
+            <i data-lucide="heart-handshake" aria-hidden="true"></i>
+            <p>Be curious, not cruel. You can leave or report a chat at any time.</p>
+          </div>
+
+          <div class="join-controls">
+            <label class="age-check"><input id="age-confirmation" type="checkbox"><span>I confirm I am 18 or older.</span></label>
+            <button id="start-button" class="primary-button" type="button" disabled><i data-lucide="shuffle" aria-hidden="true"></i><span>Find someone</span></button>
+            <p class="terms-note">Text only · No account · Leave whenever</p>
+          </div>
+        </aside>
+
+        <section class="chat-panel" aria-label="Chat">
+          <div class="chat-header">
+            <div class="chat-person">
+              <div id="avatar" class="avatar" aria-hidden="true"><i data-lucide="message-circle" aria-hidden="true"></i></div>
+              <div>
+                <h2 id="chat-title">Your next conversation</h2>
+                <p id="chat-subtitle">A stranger is just a hello away</p>
+              </div>
+            </div>
+            <div class="chat-actions">
+              <button id="next-button" class="icon-button" type="button" title="Next stranger" aria-label="Next stranger" disabled><i data-lucide="skip-forward" aria-hidden="true"></i></button>
+              <button id="report-button" class="icon-button" type="button" title="Report and block" aria-label="Report and block" disabled><i data-lucide="flag" aria-hidden="true"></i></button>
+              <button id="stop-button" class="icon-button stop-button" type="button" title="Leave chat" aria-label="Leave chat" disabled><i data-lucide="x" aria-hidden="true"></i></button>
+            </div>
+          </div>
+
+          <div id="message-list" class="message-list" role="log" aria-live="polite" aria-relevant="additions text">
+            <div id="empty-state" class="empty-state">
+              <div class="empty-art" aria-hidden="true"><span class="art-sun"></span><span class="art-window"></span><span class="art-plant">✳</span><span class="art-caption">hello, out there</span></div>
+              <p class="empty-kicker">A fresh page</p>
+              <p class="empty-copy">When you meet someone, this is where the first hello lands.</p>
+            </div>
+          </div>
+
+          <div id="typing-indicator" class="typing-indicator" aria-live="polite"></div>
+          <form id="message-form" class="message-form">
+            <label class="sr-only" for="message-input">Write a message</label>
+            <input id="message-input" type="text" maxlength="1000" placeholder="Find someone to say hello to" autocomplete="off" disabled>
+            <button id="send-button" class="send-button" type="submit" title="Send message" aria-label="Send message" disabled><i data-lucide="arrow-up" aria-hidden="true"></i></button>
+          </form>
+          <div class="chat-footer"><span id="connection-status">Not connected</span><span>Be kind. Stay anonymous.</span></div>
+        </section>
+      </main>
+      <footer class="page-footer"><span>sideby <span class="footer-dot">·</span> just people, talking</span><button id="guidelines-button" type="button">Community guidelines</button></footer>
+    </div>
+
+    <dialog id="safety-dialog" class="info-dialog">
+      <form method="dialog"><button class="dialog-close icon-button" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button></form>
+      <span class="dialog-icon"><i data-lucide="shield-check" aria-hidden="true"></i></span>
+      <p class="eyebrow">LOOK OUT FOR YOURSELF</p>
+      <h2>A few good rules.</h2>
+      <ul><li>Keep identifying details, contact info, and your location private.</li><li>Chat is text-only. Don’t share images or links you don’t trust.</li><li>Leave a conversation that feels wrong. Reporting blocks that person for this session.</li><li>Reports are written to the server log for the site operator to review.</li></ul>
+      <button class="primary-button dialog-done" type="button">Got it</button>
+    </dialog>
+
+    <dialog id="report-dialog" class="info-dialog report-dialog">
+      <form method="dialog"><button class="dialog-close icon-button" aria-label="Close"><i data-lucide="x" aria-hidden="true"></i></button></form>
+      <span class="dialog-icon report-icon"><i data-lucide="flag" aria-hidden="true"></i></span>
+      <p class="eyebrow">REPORT &amp; BLOCK</p>
+      <h2>What happened?</h2>
+      <p class="dialog-description">This ends the chat and blocks this person from matching with you again during this session.</p>
+      <label class="sr-only" for="report-reason">Choose a reason</label>
+      <select id="report-reason"><option value="harassment">Harassment or bullying</option><option value="spam">Spam or suspicious links</option><option value="explicit-content">Explicit or inappropriate content</option><option value="other">Something else</option></select>
+      <div class="dialog-actions"><button id="cancel-report" class="secondary-button" type="button">Cancel</button><button id="submit-report" class="danger-button" type="button">Report &amp; block</button></div>
+    </dialog>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
